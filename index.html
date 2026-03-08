@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>StudyHub • Learn Together</title>
+		<!-- Tailwind CSS CDN for modern, responsive design -->
+		<script src="https://cdn.tailwindcss.com"></script>
+		<!-- Custom CSS -->
+		<link rel="stylesheet" href="style.css" />
+		<!-- Font Awesome for icons (lightweight CDN) -->
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+		/>
+	</head>
+	<body class="bg-[#F9FAFB] text-[#1F2937] font-sans">
+		<!-- NAVBAR -->
+		<nav class="bg-white border-b border-gray-200 shadow-sm fixed w-full z-50">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="flex items-center justify-between h-16">
+					<!-- Logo -->
+					<div class="flex items-center gap-x-3">
+						<div
+							class="w-9 h-9 bg-[#4F46E5] rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-inner"
+							>📚</div
+						>
+						<div>
+							<span class="text-2xl font-bold tracking-tight text-[#111827]">Study</span>
+							<span class="text-2xl font-bold tracking-tight text-[#4F46E5]">Hub</span>
+						</div>
+					</div>
+
+					<!-- Desktop Menu -->
+					<div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
+						<a
+							href="#"
+							onclick="showSection('home')"
+							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors active"
+							>Home</a
+						>
+						<a
+							href="#"
+							onclick="showSection('materials')"
+							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
+							>Browse Materials</a
+						>
+						<a
+							href="#"
+							onclick="showSection('upload')"
+							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
+							>Upload</a
+						>
+						<a
+							href="#"
+							onclick="showSection('groups')"
+							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
+							>Study Groups</a
+						>
+						<a
+							href="#"
+							onclick="showSection('contact')"
+							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
+							>Contact</a
+						>
+					</div>
+
+					<!-- Right side -->
+					<div class="flex items-center gap-x-4">
+						<button
+							onclick="showSection('upload')"
+							class="hidden sm:flex items-center gap-x-2 px-5 py-2.5 bg-[#4F46E5] hover:bg-indigo-700 text-white text-sm font-semibold rounded-2xl transition-all active:scale-95 shadow-md"
+						>
+							<i class="fas fa-upload"></i>
+							<span>Upload</span>
+						</button>
+
+						<!-- Mobile Hamburger -->
+						<button id="mobile-menu-btn" class="md:hidden text-2xl text-[#111827]">
+							<i class="fas fa-bars"></i>
+						</button>
+					</div>
+				</div>
+			</div>
+
+			<!-- Mobile Menu -->
+			<div id="mobile-menu" class="hidden md:hidden bg-white border-t px-6 py-6">
+				<div class="flex flex-col gap-y-5 text-lg font-medium">
+					<a
+						href="#"
+						onclick="
+							showSection('home');
+							toggleMobileMenu();
+						"
+						class="nav-link-mobile"
+						>Home</a
+					>
+					<a
+						href="#"
+						onclick="
+							showSection('materials');
+							toggleMobileMenu();
+						"
+						class="nav-link-mobile"
+						>Browse Materials</a
+					>
+					<a
+						href="#"
+						onclick="
+							showSection('upload');
+							toggleMobileMenu();
+						"
+						class="nav-link-mobile"
+						>Upload Material</a
+					>
+					<a
+						href="#"
+						onclick="
+							showSection('groups');
+							toggleMobileMenu();
+						"
+						class="nav-link-mobile"
+						>Study Groups</a
+					>
+					<a
+						href="#"
+						onclick="
+							showSection('contact');
+							toggleMobileMenu();
+						"
+						class="nav-link-mobile"
+						>Contact</a
+					>
+				</div>
+			</div>
+		</nav>
+
+		<!-- MAIN CONTENT -->
+		<main class="pt-16">
+			<!-- HOME SECTION -->
+			<section
+				id="home"
+				class="page-section min-h-screen flex items-center bg-gradient-to-br from-[#4F46E5] to-indigo-700 text-white"
+			>
+				<div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
+					<!-- Left content -->
+					<div class="space-y-8">
+						<div
+							class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-3xl text-sm font-medium"
+						>
+							<div class="w-2 h-2 bg-[#22C55E] rounded-full animate-pulse"></div>
+							12,459 students online right now
+						</div>
+
+						<h1 class="text-6xl md:text-7xl font-bold leading-none tracking-tighter">
+							StudyHub<br />
+							<span class="text-[#22C55E]">Learn Together,</span><br />
+							Succeed Together
+						</h1>
+
+						<p class="max-w-lg text-xl text-white/90">
+							The ultimate platform for university students to share notes, past questions, and
+							collaborate in real time. Built for success.
+						</p>
+
+						<div class="flex flex-wrap gap-4">
+							<button
+								onclick="showSection('upload')"
+								class="flex-1 md:flex-none px-10 py-5 bg-white text-[#4F46E5] font-semibold rounded-3xl text-lg hover:shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-x-3"
+							>
+								<i class="fas fa-upload"></i>
+								Upload Material
+							</button>
+							<button
+								onclick="showSection('materials')"
+								class="flex-1 md:flex-none px-10 py-5 border-2 border-white/80 hover:bg-white/10 font-semibold rounded-3xl text-lg transition-all"
+							>
+								Browse Materials
+							</button>
+						</div>
+
+						<!-- Trust signals -->
+						<div class="flex items-center gap-x-8 pt-8">
+							<div>
+								<div class="text-4xl font-bold">10k+</div>
+								<div class="text-sm opacity-75">Materials shared</div>
+							</div>
+							<div>
+								<div class="text-4xl font-bold">428</div>
+								<div class="text-sm opacity-75">Study groups</div>
+							</div>
+							<div>
+								<div class="text-4xl font-bold">4.98</div>
+								<div class="text-sm opacity-75">Avg. rating</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Right visual -->
+					<div class="hidden md:flex justify-end">
+						<div class="relative">
+							<div
+								class="bg-white/10 backdrop-blur-3xl p-8 rounded-3xl shadow-2xl border border-white/30"
+							>
+								<img
+									src="https://picsum.photos/id/1015/600/420"
+									alt="Students collaborating"
+									class="rounded-3xl shadow-xl w-full max-w-md"
+								/>
+								<div
+									class="absolute -bottom-6 -right-6 bg-white rounded-3xl shadow-xl p-6 max-w-[220px]"
+								>
+									<div class="flex items-center gap-x-4">
+										<div
+											class="w-12 h-12 bg-[#22C55E] text-white rounded-2xl flex items-center justify-center text-3xl"
+											>📝</div
+										>
+										<div>
+											<div class="font-semibold text-[#111827]">CSC 301 Notes</div>
+											<div class="text-xs text-[#22C55E]">Just uploaded by @adeola</div>
+										</div>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- Scroll indicator -->
+				<div
+					class="absolute bottom-10 left-1/2 flex flex-col items-center gap-y-2 text-white/70 text-xs tracking-widest"
+				>
+					<div>SCROLL TO EXPLORE</div>
+					<i class="fas fa-chevron-down animate-bounce"></i>
+				</div>
+			</section>
+
+			<!-- MATERIALS SECTION -->
+			<section id="materials" class="page-section hidden py-20 bg-[#F9FAFB]">
+				<div class="max-w-7xl mx-auto px-6">
+					<div
+						class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12"
+					>
+						<div>
+							<h2 class="text-5xl font-bold tracking-tight text-[#111827]">Browse Materials</h2>
+							<p class="text-[#6B7280] mt-2"
+								>Find notes, past questions &amp; resources by department</p
+							>
+						</div>
+
+						<!-- Search -->
+						<div class="relative w-full md:w-96">
+							<input
+								id="search-input"
+								onkeyup="filterMaterials()"
+								type="text"
+								placeholder="Search by title or course code..."
+								class="w-full bg-white border border-gray-300 focus:border-[#4F46E5] focus:ring-[#4F46E5] rounded-3xl px-6 py-4 text-base outline-none"
+							/>
+							<i class="fas fa-search absolute right-6 top-1/2 -translate-y-1/2 text-gray-400"></i>
+						</div>
+					</div>
+
+					<!-- Category Filters -->
+					<div class="flex flex-wrap gap-3 mb-10" id="category-filters">
+						<!-- Populated by JS -->
+					</div>
+
+					<!-- Materials Grid -->
+					<div id="materials-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+						<!-- Cards populated by JS -->
+					</div>
+				</div>
+			</section>
+
+			<!-- UPLOAD SECTION -->
+			<section id="upload" class="page-section hidden py-20">
+				<div class="max-w-2xl mx-auto px-6">
+					<div class="bg-white rounded-3xl shadow-xl p-10">
+						<div class="flex items-center gap-x-4 mb-10">
+							<div
+								class="w-12 h-12 bg-[#22C55E] text-white rounded-2xl flex items-center justify-center text-4xl"
+								>📤</div
+							>
+							<div>
+								<h2 class="text-4xl font-bold">Upload New Material</h2>
+								<p class="text-gray-500">Help your peers succeed</p>
+							</div>
+						</div>
+
+						<form id="upload-form" onsubmit="handleUpload(event)" class="space-y-8">
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<!-- Title -->
+								<div>
+									<label class="block text-sm font-medium mb-2">Material Title</label>
+									<input
+										id="title"
+										type="text"
+										required
+										class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4 outline-none"
+									/>
+								</div>
+								<!-- Course Name -->
+								<div>
+									<label class="block text-sm font-medium mb-2">Course Name</label>
+									<input
+										id="course-name"
+										type="text"
+										required
+										class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4 outline-none"
+									/>
+								</div>
+							</div>
+
+							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+								<!-- Course Code -->
+								<div>
+									<label class="block text-sm font-medium mb-2">Course Code</label>
+									<input
+										id="course-code"
+										type="text"
+										required
+										placeholder="CSC101"
+										class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4 outline-none"
+									/>
+								</div>
+								<!-- Category -->
+								<div>
+									<label class="block text-sm font-medium mb-2">Category</label>
+									<select
+										id="category"
+										required
+										class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4 outline-none bg-white"
+									>
+										<option value="Computer Science">Computer Science</option>
+										<option value="Mathematics">Mathematics</option>
+										<option value="Economics">Economics</option>
+										<option value="Physics">Physics</option>
+										<option value="Chemistry">Chemistry</option>
+									</select>
+								</div>
+							</div>
+
+							<!-- Description -->
+							<div>
+								<label class="block text-sm font-medium mb-2">Description</label>
+								<textarea
+									id="description"
+									rows="4"
+									required
+									class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-3xl px-6 py-4 outline-none resize-none"
+								></textarea>
+							</div>
+
+							<!-- File Upload -->
+							<div>
+								<label class="block text-sm font-medium mb-2">Upload File (PDF / DOC)</label>
+								<div
+									class="border-2 border-dashed border-gray-300 hover:border-[#4F46E5] rounded-3xl p-10 text-center transition-colors"
+								>
+									<input
+										id="file-upload"
+										type="file"
+										accept=".pdf,.doc,.docx"
+										required
+										class="hidden"
+									/>
+									<div
+										onclick="document.getElementById('file-upload').click()"
+										class="cursor-pointer"
+									>
+										<i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
+										<p class="font-medium">Click to upload or drag &amp; drop</p>
+										<p class="text-xs text-gray-400 mt-1">PDF or DOC only • Max 25MB</p>
+									</div>
+								</div>
+								<p id="file-name" class="text-xs text-[#22C55E] mt-3 text-center font-medium"></p>
+							</div>
+
+							<button
+								type="submit"
+								class="w-full py-6 bg-[#4F46E5] hover:bg-indigo-700 text-white text-xl font-semibold rounded-3xl transition-all active:scale-[0.97] shadow-lg flex items-center justify-center gap-x-3"
+							>
+								<i class="fas fa-paper-plane"></i>
+								<span>Share with the Community</span>
+							</button>
+						</form>
+					</div>
+				</div>
+			</section>
+
+			<!-- STUDY GROUPS SECTION -->
+			<section id="groups" class="page-section hidden py-20 bg-[#F9FAFB]">
+				<div class="max-w-7xl mx-auto px-6">
+					<div class="flex justify-between items-end mb-12">
+						<div>
+							<h2 class="text-5xl font-bold tracking-tight">Active Study Groups</h2>
+							<p class="text-[#6B7280]">Join or create a group • Real-time collaboration</p>
+						</div>
+						<button
+							onclick="createNewGroup()"
+							class="px-8 py-4 bg-[#22C55E] text-white font-semibold rounded-3xl flex items-center gap-x-3 hover:shadow-xl transition-all"
+						>
+							<i class="fas fa-plus"></i>
+							<span>New Group</span>
+						</button>
+					</div>
+
+					<div id="groups-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+						<!-- Populated by JS -->
+					</div>
+				</div>
+			</section>
+
+			<!-- CONTACT SECTION -->
+			<section id="contact" class="page-section hidden py-20">
+				<div class="max-w-2xl mx-auto px-6">
+					<div class="text-center mb-12">
+						<h2 class="text-5xl font-bold">Get in Touch</h2>
+						<p class="mt-4 text-lg text-gray-600"
+							>Have feedback or suggestions? We’d love to hear from you.</p
+						>
+					</div>
+
+					<form
+						id="contact-form"
+						onsubmit="handleContact(event)"
+						class="bg-white shadow-xl rounded-3xl p-10 space-y-8"
+					>
+						<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div>
+								<label class="block text-sm font-medium mb-2">Your Name</label>
+								<input
+									type="text"
+									id="contact-name"
+									required
+									class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4"
+								/>
+							</div>
+							<div>
+								<label class="block text-sm font-medium mb-2">Email Address</label>
+								<input
+									type="email"
+									id="contact-email"
+									required
+									class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4"
+								/>
+							</div>
+						</div>
+
+						<div>
+							<label class="block text-sm font-medium mb-2">Message</label>
+							<textarea
+								id="contact-message"
+								rows="6"
+								required
+								class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-3xl px-6 py-4 resize-none"
+							></textarea>
+						</div>
+
+						<button
+							type="submit"
+							class="w-full py-6 bg-[#111827] hover:bg-black text-white font-semibold rounded-3xl transition-all"
+						>
+							Send Message
+						</button>
+					</form>
+				</div>
+			</section>
+		</main>
+
+		<!-- FOOTER -->
+		<footer class="bg-[#111827] text-white py-16">
+			<div class="max-w-7xl mx-auto px-6">
+				<div class="grid grid-cols-2 md:grid-cols-5 gap-10">
+					<!-- Column 1 -->
+					<div>
+						<div class="flex items-center gap-x-3 mb-6">
+							<div
+								class="w-8 h-8 bg-[#4F46E5] rounded-2xl flex items-center justify-center text-white"
+								>📚</div
+							>
+							<span class="text-2xl font-bold">StudyHub</span>
+						</div>
+						<p class="text-gray-400 text-sm leading-relaxed">
+							Made with ❤️ for students, by students.<br />
+							Lagos, Nigeria
+						</p>
+					</div>
+
+					<!-- Quick Links -->
+					<div>
+						<div class="font-semibold mb-6 text-[#22C55E]">PLATFORM</div>
+						<div class="space-y-4 text-sm">
+							<a
+								href="#"
+								onclick="
+									showSection('materials');
+									return false;
+								"
+								class="block hover:text-[#22C55E]"
+								>Browse Materials</a
+							>
+							<a
+								href="#"
+								onclick="
+									showSection('upload');
+									return false;
+								"
+								class="block hover:text-[#22C55E]"
+								>Upload Notes</a
+							>
+							<a
+								href="#"
+								onclick="
+									showSection('groups');
+									return false;
+								"
+								class="block hover:text-[#22C55E]"
+								>Join Groups</a
+							>
+						</div>
+					</div>
+
+					<div>
+						<div class="font-semibold mb-6 text-[#22C55E]">COMMUNITY</div>
+						<div class="space-y-4 text-sm">
+							<a href="#" class="block hover:text-[#22C55E]">Discord Server</a>
+							<a href="#" class="block hover:text-[#22C55E]">Student Stories</a>
+							<a href="#" class="block hover:text-[#22C55E]">Campus Ambassadors</a>
+						</div>
+					</div>
+
+					<!-- Social -->
+					<div class="col-span-2 md:col-span-1">
+						<div class="font-semibold mb-6 text-[#22C55E]">CONNECT</div>
+						<div class="flex gap-x-6 text-3xl">
+							<a href="#" class="hover:text-[#22C55E] transition-colors"
+								><i class="fab fa-twitter"></i
+							></a>
+							<a href="#" class="hover:text-[#22C55E] transition-colors"
+								><i class="fab fa-instagram"></i
+							></a>
+							<a href="#" class="hover:text-[#22C55E] transition-colors"
+								><i class="fab fa-linkedin"></i
+							></a>
+							<a href="#" class="hover:text-[#22C55E] transition-colors"
+								><i class="fab fa-whatsapp"></i
+							></a>
+						</div>
+					</div>
+
+					<!-- Copyright -->
+					<div class="text-xs text-gray-500 md:text-right">
+						&copy; 2026 StudyHub.<br />
+						All rights reserved.<br />
+						Built as a demo for educational purposes.
+					</div>
+				</div>
+			</div>
+		</footer>
+
+		<!-- Toast Notification -->
+		<div
+			id="toast"
+			class="hidden fixed bottom-6 right-6 bg-[#111827] text-white px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-x-3"
+		>
+			<i class="fas fa-check-circle text-[#22C55E]"></i>
+			<span id="toast-text" class="font-medium"></span>
+		</div>
+
+		<!-- Script -->
+		<script src="script.js"></script>
+	</body>
+</html>
