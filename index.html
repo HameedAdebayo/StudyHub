@@ -4,22 +4,150 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<title>StudyHub • Learn Together</title>
-		<!-- Tailwind CSS CDN for modern, responsive design -->
 		<script src="https://cdn.tailwindcss.com"></script>
-		<!-- Custom CSS -->
 		<link rel="stylesheet" href="style.css" />
-		<!-- Font Awesome for icons (lightweight CDN) -->
 		<link
 			rel="stylesheet"
 			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
 		/>
+		<base target="_blank" />
 	</head>
 	<body class="bg-[#F9FAFB] text-[#1F2937] font-sans">
+		<!-- AUTH MODAL -->
+		<div
+			id="auth-modal"
+			class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] hidden flex items-center justify-center"
+		>
+			<div class="bg-white rounded-3xl shadow-2xl w-full max-w-md mx-4 p-8 relative">
+				<button
+					onclick="closeAuthModal()"
+					class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 text-xl"
+				>
+					<i class="fas fa-times"></i>
+				</button>
+
+				<!-- Tabs -->
+				<div class="flex gap-4 mb-8 border-b">
+					<button
+						id="login-tab"
+						onclick="switchAuthTab('login')"
+						class="pb-3 px-2 text-lg font-semibold text-[#4F46E5] border-b-2 border-[#4F46E5]"
+						>Login</button
+					>
+					<button
+						id="signup-tab"
+						onclick="switchAuthTab('signup')"
+						class="pb-3 px-2 text-lg font-semibold text-gray-400 hover:text-gray-600"
+						>Sign Up</button
+					>
+				</div>
+
+				<!-- Login Form -->
+				<form id="login-form" onsubmit="handleLogin(event)" class="space-y-5">
+					<div>
+						<label class="block text-sm font-medium mb-2">Username or Email</label>
+						<input
+							type="text"
+							id="login-identifier"
+							required
+							class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-5 py-3 outline-none"
+							placeholder="Enter username or email"
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-2">Password</label>
+						<input
+							type="password"
+							id="login-password"
+							required
+							class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-5 py-3 outline-none"
+							placeholder="Enter password"
+						/>
+					</div>
+					<button
+						type="submit"
+						class="w-full py-4 bg-[#4F46E5] hover:bg-indigo-700 text-white font-semibold rounded-2xl transition-all"
+					>
+						<i class="fas fa-sign-in-alt mr-2"></i>Login
+					</button>
+				</form>
+
+				<!-- Signup Form -->
+				<form id="signup-form" onsubmit="handleSignup(event)" class="space-y-4 hidden">
+					<div class="grid grid-cols-2 gap-4">
+						<div>
+							<label class="block text-sm font-medium mb-1">First Name</label>
+							<input
+								type="text"
+								id="signup-firstname"
+								required
+								class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-4 py-3 outline-none"
+							/>
+						</div>
+						<div>
+							<label class="block text-sm font-medium mb-1">Last Name</label>
+							<input
+								type="text"
+								id="signup-lastname"
+								required
+								class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-4 py-3 outline-none"
+							/>
+						</div>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Username</label>
+						<input
+							type="text"
+							id="signup-username"
+							required
+							class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-4 py-3 outline-none"
+							placeholder="Choose a username"
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Email</label>
+						<input
+							type="email"
+							id="signup-email"
+							required
+							class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-4 py-3 outline-none"
+							placeholder="your@email.com"
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Phone (optional)</label>
+						<input
+							type="tel"
+							id="signup-phone"
+							class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-4 py-3 outline-none"
+							placeholder="08012345678"
+						/>
+					</div>
+					<div>
+						<label class="block text-sm font-medium mb-1">Password</label>
+						<input
+							type="password"
+							id="signup-password"
+							required
+							minlength="6"
+							class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-4 py-3 outline-none"
+							placeholder="Min 6 characters"
+						/>
+					</div>
+					<button
+						type="submit"
+						class="w-full py-4 bg-[#22C55E] hover:bg-green-600 text-white font-semibold rounded-2xl transition-all"
+					>
+						<i class="fas fa-user-plus mr-2"></i>Create Account
+					</button>
+				</form>
+			</div>
+		</div>
+
 		<!-- NAVBAR -->
 		<nav class="bg-white border-b border-gray-200 shadow-sm fixed w-full z-50">
 			<div class="max-w-7xl mx-auto px-6">
 				<div class="flex items-center justify-between h-16">
-					<!-- Logo -->
 					<div class="flex items-center gap-x-3">
 						<div
 							class="w-9 h-9 bg-[#4F46E5] rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-inner"
@@ -31,51 +159,84 @@
 						</div>
 					</div>
 
-					<!-- Desktop Menu -->
 					<div class="hidden md:flex items-center gap-x-8 text-sm font-medium">
 						<a
 							href="#"
-							onclick="showSection('home')"
+							onclick="
+								showSection('home');
+								return false;
+							"
 							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors active"
 							>Home</a
 						>
 						<a
 							href="#"
-							onclick="showSection('materials')"
+							onclick="
+								showSection('materials');
+								return false;
+							"
 							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
 							>Browse Materials</a
 						>
 						<a
 							href="#"
-							onclick="showSection('upload')"
+							onclick="
+								showSection('upload');
+								return false;
+							"
 							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
 							>Upload</a
 						>
 						<a
 							href="#"
-							onclick="showSection('groups')"
+							onclick="
+								showSection('groups');
+								return false;
+							"
 							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
 							>Study Groups</a
 						>
 						<a
 							href="#"
-							onclick="showSection('contact')"
+							onclick="
+								showSection('contact');
+								return false;
+							"
 							class="nav-link text-[#111827] hover:text-[#4F46E5] transition-colors"
 							>Contact</a
 						>
 					</div>
 
-					<!-- Right side -->
 					<div class="flex items-center gap-x-4">
 						<button
-							onclick="showSection('upload')"
+							onclick="
+								showSection('upload');
+								return false;
+							"
 							class="hidden sm:flex items-center gap-x-2 px-5 py-2.5 bg-[#4F46E5] hover:bg-indigo-700 text-white text-sm font-semibold rounded-2xl transition-all active:scale-95 shadow-md"
 						>
-							<i class="fas fa-upload"></i>
-							<span>Upload</span>
+							<i class="fas fa-upload"></i><span>Upload</span>
 						</button>
 
-						<!-- Mobile Hamburger -->
+						<!-- Auth buttons -->
+						<div id="auth-buttons">
+							<button
+								onclick="openAuthModal('login')"
+								class="px-5 py-2.5 border border-gray-300 hover:border-[#4F46E5] text-sm font-semibold rounded-2xl transition-all"
+							>
+								Login
+							</button>
+						</div>
+						<div id="user-menu" class="hidden items-center gap-x-3">
+							<span id="user-greeting" class="text-sm font-medium text-gray-600"></span>
+							<button
+								onclick="logout()"
+								class="text-sm text-red-500 hover:text-red-700 font-medium"
+							>
+								<i class="fas fa-sign-out-alt"></i>
+							</button>
+						</div>
+
 						<button id="mobile-menu-btn" class="md:hidden text-2xl text-[#111827]">
 							<i class="fas fa-bars"></i>
 						</button>
@@ -83,7 +244,6 @@
 				</div>
 			</div>
 
-			<!-- Mobile Menu -->
 			<div id="mobile-menu" class="hidden md:hidden bg-white border-t px-6 py-6">
 				<div class="flex flex-col gap-y-5 text-lg font-medium">
 					<a
@@ -91,6 +251,7 @@
 						onclick="
 							showSection('home');
 							toggleMobileMenu();
+							return false;
 						"
 						class="nav-link-mobile"
 						>Home</a
@@ -100,6 +261,7 @@
 						onclick="
 							showSection('materials');
 							toggleMobileMenu();
+							return false;
 						"
 						class="nav-link-mobile"
 						>Browse Materials</a
@@ -109,6 +271,7 @@
 						onclick="
 							showSection('upload');
 							toggleMobileMenu();
+							return false;
 						"
 						class="nav-link-mobile"
 						>Upload Material</a
@@ -118,6 +281,7 @@
 						onclick="
 							showSection('groups');
 							toggleMobileMenu();
+							return false;
 						"
 						class="nav-link-mobile"
 						>Study Groups</a
@@ -127,6 +291,7 @@
 						onclick="
 							showSection('contact');
 							toggleMobileMenu();
+							return false;
 						"
 						class="nav-link-mobile"
 						>Contact</a
@@ -143,13 +308,12 @@
 				class="page-section min-h-screen flex items-center bg-gradient-to-br from-[#4F46E5] to-indigo-700 text-white"
 			>
 				<div class="max-w-7xl mx-auto px-6 grid md:grid-cols-2 gap-12 items-center">
-					<!-- Left content -->
 					<div class="space-y-8">
 						<div
 							class="inline-flex items-center gap-x-2 bg-white/20 backdrop-blur-md px-5 py-2 rounded-3xl text-sm font-medium"
 						>
 							<div class="w-2 h-2 bg-[#22C55E] rounded-full animate-pulse"></div>
-							12,459 students online right now
+							<span id="online-count">0 students online right now</span>
 						</div>
 
 						<h1 class="text-6xl md:text-7xl font-bold leading-none tracking-tighter">
@@ -165,38 +329,41 @@
 
 						<div class="flex flex-wrap gap-4">
 							<button
-								onclick="showSection('upload')"
+								onclick="
+									showSection('upload');
+									return false;
+								"
 								class="flex-1 md:flex-none px-10 py-5 bg-white text-[#4F46E5] font-semibold rounded-3xl text-lg hover:shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-x-3"
 							>
-								<i class="fas fa-upload"></i>
-								Upload Material
+								<i class="fas fa-upload"></i>Upload Material
 							</button>
 							<button
-								onclick="showSection('materials')"
+								onclick="
+									showSection('materials');
+									return false;
+								"
 								class="flex-1 md:flex-none px-10 py-5 border-2 border-white/80 hover:bg-white/10 font-semibold rounded-3xl text-lg transition-all"
 							>
 								Browse Materials
 							</button>
 						</div>
 
-						<!-- Trust signals -->
 						<div class="flex items-center gap-x-8 pt-8">
-							<div>
-								<div class="text-4xl font-bold">10k+</div>
-								<div class="text-sm opacity-75">Materials shared</div>
-							</div>
-							<div>
-								<div class="text-4xl font-bold">428</div>
-								<div class="text-sm opacity-75">Study groups</div>
-							</div>
-							<div>
-								<div class="text-4xl font-bold">4.98</div>
-								<div class="text-sm opacity-75">Avg. rating</div>
-							</div>
+							<div
+								><div class="text-4xl font-bold" id="stat-materials">0+</div
+								><div class="text-sm opacity-75">Materials shared</div></div
+							>
+							<div
+								><div class="text-4xl font-bold" id="stat-groups">0</div
+								><div class="text-sm opacity-75">Study groups</div></div
+							>
+							<div
+								><div class="text-4xl font-bold">4.98</div
+								><div class="text-sm opacity-75">Avg. rating</div></div
+							>
 						</div>
 					</div>
 
-					<!-- Right visual -->
 					<div class="hidden md:flex justify-end">
 						<div class="relative">
 							<div
@@ -226,7 +393,6 @@
 					</div>
 				</div>
 
-				<!-- Scroll indicator -->
 				<div
 					class="absolute bottom-10 left-1/2 flex flex-col items-center gap-y-2 text-white/70 text-xs tracking-widest"
 				>
@@ -244,11 +410,9 @@
 						<div>
 							<h2 class="text-5xl font-bold tracking-tight text-[#111827]">Browse Materials</h2>
 							<p class="text-[#6B7280] mt-2"
-								>Find notes, past questions &amp; resources by department</p
+								>Find notes, past questions & resources by department</p
 							>
 						</div>
-
-						<!-- Search -->
 						<div class="relative w-full md:w-96">
 							<input
 								id="search-input"
@@ -261,15 +425,11 @@
 						</div>
 					</div>
 
-					<!-- Category Filters -->
-					<div class="flex flex-wrap gap-3 mb-10" id="category-filters">
-						<!-- Populated by JS -->
-					</div>
-
-					<!-- Materials Grid -->
-					<div id="materials-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						<!-- Cards populated by JS -->
-					</div>
+					<div class="flex flex-wrap gap-3 mb-10" id="category-filters"></div>
+					<div
+						id="materials-grid"
+						class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+					></div>
 				</div>
 			</section>
 
@@ -288,9 +448,22 @@
 							</div>
 						</div>
 
+						<div id="upload-login-prompt" class="hidden text-center py-10">
+							<div class="text-6xl mb-4">🔒</div>
+							<h3 class="text-2xl font-bold mb-2">Login Required</h3>
+							<p class="text-gray-500 mb-6"
+								>Please login or create an account to upload materials.</p
+							>
+							<button
+								onclick="openAuthModal('login')"
+								class="px-8 py-4 bg-[#4F46E5] text-white font-semibold rounded-2xl"
+							>
+								<i class="fas fa-sign-in-alt mr-2"></i>Login to Upload
+							</button>
+						</div>
+
 						<form id="upload-form" onsubmit="handleUpload(event)" class="space-y-8">
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<!-- Title -->
 								<div>
 									<label class="block text-sm font-medium mb-2">Material Title</label>
 									<input
@@ -300,7 +473,6 @@
 										class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4 outline-none"
 									/>
 								</div>
-								<!-- Course Name -->
 								<div>
 									<label class="block text-sm font-medium mb-2">Course Name</label>
 									<input
@@ -313,7 +485,6 @@
 							</div>
 
 							<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-								<!-- Course Code -->
 								<div>
 									<label class="block text-sm font-medium mb-2">Course Code</label>
 									<input
@@ -324,7 +495,6 @@
 										class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-2xl px-6 py-4 outline-none"
 									/>
 								</div>
-								<!-- Category -->
 								<div>
 									<label class="block text-sm font-medium mb-2">Category</label>
 									<select
@@ -341,7 +511,6 @@
 								</div>
 							</div>
 
-							<!-- Description -->
 							<div>
 								<label class="block text-sm font-medium mb-2">Description</label>
 								<textarea
@@ -352,16 +521,15 @@
 								></textarea>
 							</div>
 
-							<!-- File Upload -->
 							<div>
-								<label class="block text-sm font-medium mb-2">Upload File (PDF / DOC)</label>
+								<label class="block text-sm font-medium mb-2">Upload File (PDF, Image, DOC)</label>
 								<div
 									class="border-2 border-dashed border-gray-300 hover:border-[#4F46E5] rounded-3xl p-10 text-center transition-colors"
 								>
 									<input
 										id="file-upload"
 										type="file"
-										accept=".pdf,.doc,.docx"
+										accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.gif,.txt,.zip"
 										required
 										class="hidden"
 									/>
@@ -370,8 +538,8 @@
 										class="cursor-pointer"
 									>
 										<i class="fas fa-cloud-upload-alt text-5xl text-gray-400 mb-4"></i>
-										<p class="font-medium">Click to upload or drag &amp; drop</p>
-										<p class="text-xs text-gray-400 mt-1">PDF or DOC only • Max 25MB</p>
+										<p class="font-medium">Click to upload or drag & drop</p>
+										<p class="text-xs text-gray-400 mt-1">PDF, Images, DOC, TXT, ZIP • Max 25MB</p>
 									</div>
 								</div>
 								<p id="file-name" class="text-xs text-[#22C55E] mt-3 text-center font-medium"></p>
@@ -381,8 +549,7 @@
 								type="submit"
 								class="w-full py-6 bg-[#4F46E5] hover:bg-indigo-700 text-white text-xl font-semibold rounded-3xl transition-all active:scale-[0.97] shadow-lg flex items-center justify-center gap-x-3"
 							>
-								<i class="fas fa-paper-plane"></i>
-								<span>Share with the Community</span>
+								<i class="fas fa-paper-plane"></i><span>Share with the Community</span>
 							</button>
 						</form>
 					</div>
@@ -401,14 +568,10 @@
 							onclick="createNewGroup()"
 							class="px-8 py-4 bg-[#22C55E] text-white font-semibold rounded-3xl flex items-center gap-x-3 hover:shadow-xl transition-all"
 						>
-							<i class="fas fa-plus"></i>
-							<span>New Group</span>
+							<i class="fas fa-plus"></i><span>New Group</span>
 						</button>
 					</div>
-
-					<div id="groups-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-						<!-- Populated by JS -->
-					</div>
+					<div id="groups-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"></div>
 				</div>
 			</section>
 
@@ -418,10 +581,9 @@
 					<div class="text-center mb-12">
 						<h2 class="text-5xl font-bold">Get in Touch</h2>
 						<p class="mt-4 text-lg text-gray-600"
-							>Have feedback or suggestions? We’d love to hear from you.</p
+							>Have feedback or suggestions? We'd love to hear from you.</p
 						>
 					</div>
-
 					<form
 						id="contact-form"
 						onsubmit="handleContact(event)"
@@ -447,7 +609,6 @@
 								/>
 							</div>
 						</div>
-
 						<div>
 							<label class="block text-sm font-medium mb-2">Message</label>
 							<textarea
@@ -457,7 +618,6 @@
 								class="w-full border border-gray-300 focus:border-[#4F46E5] rounded-3xl px-6 py-4 resize-none"
 							></textarea>
 						</div>
-
 						<button
 							type="submit"
 							class="w-full py-6 bg-[#111827] hover:bg-black text-white font-semibold rounded-3xl transition-all"
@@ -473,7 +633,6 @@
 		<footer class="bg-[#111827] text-white py-16">
 			<div class="max-w-7xl mx-auto px-6">
 				<div class="grid grid-cols-2 md:grid-cols-5 gap-10">
-					<!-- Column 1 -->
 					<div>
 						<div class="flex items-center gap-x-3 mb-6">
 							<div
@@ -482,13 +641,10 @@
 							>
 							<span class="text-2xl font-bold">StudyHub</span>
 						</div>
-						<p class="text-gray-400 text-sm leading-relaxed">
-							Made with ❤️ for students, by students.<br />
-							Lagos, Nigeria
-						</p>
+						<p class="text-gray-400 text-sm leading-relaxed"
+							>Made with ❤️ for students, by students.<br />Lagos, Nigeria</p
+						>
 					</div>
-
-					<!-- Quick Links -->
 					<div>
 						<div class="font-semibold mb-6 text-[#22C55E]">PLATFORM</div>
 						<div class="space-y-4 text-sm">
@@ -521,7 +677,6 @@
 							>
 						</div>
 					</div>
-
 					<div>
 						<div class="font-semibold mb-6 text-[#22C55E]">COMMUNITY</div>
 						<div class="space-y-4 text-sm">
@@ -530,8 +685,6 @@
 							<a href="#" class="block hover:text-[#22C55E]">Campus Ambassadors</a>
 						</div>
 					</div>
-
-					<!-- Social -->
 					<div class="col-span-2 md:col-span-1">
 						<div class="font-semibold mb-6 text-[#22C55E]">CONNECT</div>
 						<div class="flex gap-x-6 text-3xl">
@@ -549,18 +702,14 @@
 							></a>
 						</div>
 					</div>
-
-					<!-- Copyright -->
 					<div class="text-xs text-gray-500 md:text-right">
-						&copy; 2026 StudyHub.<br />
-						All rights reserved.<br />
-						Built as a demo for educational purposes.
+						&copy; 2026 StudyHub.<br />All rights reserved.<br />Built for educational purposes.
 					</div>
 				</div>
 			</div>
 		</footer>
 
-		<!-- Toast Notification -->
+		<!-- Toast -->
 		<div
 			id="toast"
 			class="hidden fixed bottom-6 right-6 bg-[#111827] text-white px-8 py-4 rounded-3xl shadow-2xl flex items-center gap-x-3"
@@ -569,7 +718,6 @@
 			<span id="toast-text" class="font-medium"></span>
 		</div>
 
-		<!-- Script -->
 		<script src="script.js"></script>
 	</body>
 </html>
