@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>StudyHub Admin</title>
+		<script src="https://cdn.tailwindcss.com"></script>
+		<link
+			rel="stylesheet"
+			href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+		/>
+		<base target="_blank" />
+	</head>
+	<body class="bg-gray-100 min-h-screen">
+		<div class="max-w-7xl mx-auto px-6 py-10">
+			<div class="flex items-center justify-between mb-10">
+				<div class="flex items-center gap-x-3">
+					<div
+						class="w-10 h-10 bg-[#4F46E5] rounded-xl flex items-center justify-center text-white text-xl font-bold"
+						>📚</div
+					>
+					<h1 class="text-3xl font-bold text-[#111827]">StudyHub Admin</h1>
+				</div>
+				<a
+					href="index.html"
+					class="px-5 py-2.5 bg-[#4F46E5] text-white rounded-xl font-medium hover:bg-indigo-700 transition-all"
+				>
+					<i class="fas fa-arrow-left mr-2"></i>Back to Site
+				</a>
+			</div>
+
+			<!-- Stats Cards -->
+			<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+				<div class="bg-white rounded-2xl p-6 shadow-sm">
+					<div class="text-sm text-gray-500 mb-1">Total Users</div>
+					<div class="text-3xl font-bold text-[#4F46E5]" id="stat-users">0</div>
+				</div>
+				<div class="bg-white rounded-2xl p-6 shadow-sm">
+					<div class="text-sm text-gray-500 mb-1">Total Materials</div>
+					<div class="text-3xl font-bold text-[#22C55E]" id="stat-materials">0</div>
+				</div>
+				<div class="bg-white rounded-2xl p-6 shadow-sm">
+					<div class="text-sm text-gray-500 mb-1">Study Groups</div>
+					<div class="text-3xl font-bold text-[#F59E0B]" id="stat-groups">0</div>
+				</div>
+				<div class="bg-white rounded-2xl p-6 shadow-sm">
+					<div class="text-sm text-gray-500 mb-1">Contact Messages</div>
+					<div class="text-3xl font-bold text-[#EF4444]" id="stat-messages">0</div>
+				</div>
+			</div>
+
+			<!-- Tabs -->
+			<div class="bg-white rounded-2xl shadow-sm mb-6">
+				<div class="flex border-b">
+					<button
+						onclick="showTab('users')"
+						id="tab-users"
+						class="tab-btn px-8 py-4 font-semibold text-[#4F46E5] border-b-2 border-[#4F46E5]"
+					>
+						<i class="fas fa-users mr-2"></i>Users
+					</button>
+					<button
+						onclick="showTab('materials')"
+						id="tab-materials"
+						class="tab-btn px-8 py-4 font-semibold text-gray-400 hover:text-gray-600"
+					>
+						<i class="fas fa-file-alt mr-2"></i>Materials
+					</button>
+					<button
+						onclick="showTab('messages')"
+						id="tab-messages"
+						class="tab-btn px-8 py-4 font-semibold text-gray-400 hover:text-gray-600"
+					>
+						<i class="fas fa-envelope mr-2"></i>Messages
+					</button>
+				</div>
+			</div>
+
+			<!-- Users Table -->
+			<div id="panel-users" class="bg-white rounded-2xl shadow-sm overflow-hidden">
+				<div class="p-6 border-b flex justify-between items-center">
+					<h2 class="text-xl font-bold">Registered Users</h2>
+					<button onclick="loadUsers()" class="text-[#4F46E5] hover:text-indigo-700">
+						<i class="fas fa-sync-alt"></i> Refresh
+					</button>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">User ID</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Name</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Username</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Email</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Phone</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Joined</th>
+							</tr>
+						</thead>
+						<tbody id="users-table-body" class="divide-y">
+							<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">Loading...</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Materials Table -->
+			<div id="panel-materials" class="bg-white rounded-2xl shadow-sm overflow-hidden hidden">
+				<div class="p-6 border-b flex justify-between items-center">
+					<h2 class="text-xl font-bold">Uploaded Materials</h2>
+					<button onclick="loadMaterials()" class="text-[#4F46E5] hover:text-indigo-700">
+						<i class="fas fa-sync-alt"></i> Refresh
+					</button>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Title</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Course</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Category</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Uploader</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Downloads</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Date</th>
+							</tr>
+						</thead>
+						<tbody id="materials-table-body" class="divide-y">
+							<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">Loading...</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<!-- Messages Table -->
+			<div id="panel-messages" class="bg-white rounded-2xl shadow-sm overflow-hidden hidden">
+				<div class="p-6 border-b flex justify-between items-center">
+					<h2 class="text-xl font-bold">Contact Messages</h2>
+					<button onclick="loadMessages()" class="text-[#4F46E5] hover:text-indigo-700">
+						<i class="fas fa-sync-alt"></i> Refresh
+					</button>
+				</div>
+				<div class="overflow-x-auto">
+					<table class="w-full">
+						<thead class="bg-gray-50">
+							<tr>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Name</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Email</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Message</th>
+								<th class="text-left px-6 py-4 text-sm font-semibold text-gray-600">Date</th>
+							</tr>
+						</thead>
+						<tbody id="messages-table-body" class="divide-y">
+							<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">Loading...</td></tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			const API_BASE = "https://studyhub-2-jjfo.onrender.com/api";
+
+			function showTab(tab) {
+				document.querySelectorAll(".tab-btn").forEach((btn) => {
+					btn.classList.remove("text-[#4F46E5]", "border-b-2", "border-[#4F46E5]");
+					btn.classList.add("text-gray-400");
+				});
+				document
+					.getElementById(`tab-${tab}`)
+					.classList.add("text-[#4F46E5]", "border-b-2", "border-[#4F46E5]");
+				document.getElementById(`tab-${tab}`).classList.remove("text-gray-400");
+
+				document
+					.querySelectorAll('[id^="panel-"]')
+					.forEach((panel) => panel.classList.add("hidden"));
+				document.getElementById(`panel-${tab}`).classList.remove("hidden");
+			}
+
+			async function loadUsers() {
+				try {
+					const res = await fetch(`${API_BASE}/export/users`);
+					const data = await res.json();
+					const tbody = document.getElementById("users-table-body");
+					document.getElementById("stat-users").textContent = data.users.length;
+
+					if (data.users.length === 0) {
+						tbody.innerHTML =
+							'<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No users yet</td></tr>';
+						return;
+					}
+
+					tbody.innerHTML = data.users
+						.map(
+							(user) => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-mono text-gray-500">${user.user_id.substring(0, 8)}...</td>
+                        <td class="px-6 py-4 text-sm font-medium">${user.first_name} ${user.last_name}</td>
+                        <td class="px-6 py-4 text-sm">@${user.user_name}</td>
+                        <td class="px-6 py-4 text-sm">${user.email}</td>
+                        <td class="px-6 py-4 text-sm">${user.phone || "-"}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${new Date(user.created_at).toLocaleDateString()}</td>
+                    </tr>
+                `,
+						)
+						.join("");
+				} catch (err) {
+					document.getElementById("users-table-body").innerHTML =
+						'<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Failed to load users</td></tr>';
+				}
+			}
+
+			async function loadMaterials() {
+				try {
+					const res = await fetch(`${API_BASE}/materials`);
+					const data = await res.json();
+					const tbody = document.getElementById("materials-table-body");
+					document.getElementById("stat-materials").textContent = data.materials.length;
+
+					if (data.materials.length === 0) {
+						tbody.innerHTML =
+							'<tr><td colspan="6" class="px-6 py-8 text-center text-gray-400">No materials yet</td></tr>';
+						return;
+					}
+
+					tbody.innerHTML = data.materials
+						.map(
+							(m) => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium">${m.title}</td>
+                        <td class="px-6 py-4 text-sm">${m.courseCode}</td>
+                        <td class="px-6 py-4 text-sm"><span class="px-3 py-1 bg-indigo-100 text-indigo-700 rounded-full text-xs">${m.category}</span></td>
+                        <td class="px-6 py-4 text-sm">${m.uploaderName}</td>
+                        <td class="px-6 py-4 text-sm">${m.downloads}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${new Date(m.uploadDate).toLocaleDateString()}</td>
+                    </tr>
+                `,
+						)
+						.join("");
+				} catch (err) {
+					document.getElementById("materials-table-body").innerHTML =
+						'<tr><td colspan="6" class="px-6 py-8 text-center text-red-500">Failed to load materials</td></tr>';
+				}
+			}
+
+			async function loadMessages() {
+				try {
+					const res = await fetch(`${API_BASE}/contact/messages`);
+					const data = await res.json();
+					const tbody = document.getElementById("messages-table-body");
+					document.getElementById("stat-messages").textContent = data.messages.length;
+
+					if (data.messages.length === 0) {
+						tbody.innerHTML =
+							'<tr><td colspan="4" class="px-6 py-8 text-center text-gray-400">No messages yet</td></tr>';
+						return;
+					}
+
+					tbody.innerHTML = data.messages
+						.map(
+							(msg) => `
+                    <tr class="hover:bg-gray-50">
+                        <td class="px-6 py-4 text-sm font-medium">${msg.name}</td>
+                        <td class="px-6 py-4 text-sm">${msg.email}</td>
+                        <td class="px-6 py-4 text-sm max-w-md truncate">${msg.message}</td>
+                        <td class="px-6 py-4 text-sm text-gray-500">${new Date(msg.sent_at).toLocaleDateString()}</td>
+                    </tr>
+                `,
+						)
+						.join("");
+				} catch (err) {
+					document.getElementById("messages-table-body").innerHTML =
+						'<tr><td colspan="4" class="px-6 py-8 text-center text-red-500">Failed to load messages</td></tr>';
+				}
+			}
+
+			async function loadStats() {
+				try {
+					const groupsRes = await fetch(`${API_BASE}/groups`);
+					const groupsData = await groupsRes.json();
+					document.getElementById("stat-groups").textContent = groupsData.groups.length;
+				} catch (e) {}
+			}
+
+			// Load everything on page load
+			window.onload = () => {
+				loadUsers();
+				loadMaterials();
+				loadMessages();
+				loadStats();
+			};
+		</script>
+	</body>
+</html>
