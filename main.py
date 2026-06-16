@@ -8,26 +8,27 @@ import uuid
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'studyhub-secret-key-change-in-production'
+app.secret_key = os.environ.get('SECRET_KEY', 'studyhub-secret-key-change-in-production')
 
-# CRITICAL: Session cookie config for cross-origin (frontend on different port)
-app.config['SESSION_COOKIE_SAMESITE'] = 'Lax'
+# Session config for cross-origin cookies
+app.config['SESSION_COOKIE_SAMESITE'] = 'None'
 app.config['SESSION_COOKIE_HTTPONLY'] = True
-app.config['SESSION_COOKIE_SECURE'] = False
+app.config['SESSION_COOKIE_SECURE'] = True
 
-# CORS configuration - allow all localhost ports for development
-from flask_cors import cross_origin
-
-# We'll use after_request to dynamically set CORS headers for localhost
-@app.after_request
-def after_request(response):
-    origin = request.headers.get('Origin')
-    if origin and ('localhost' in origin or '127.0.0.1' in origin):
-        response.headers['Access-Control-Allow-Origin'] = origin
-        response.headers['Access-Control-Allow-Credentials'] = 'true'
-        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
-        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
-    return response
+# CORS - allow your Netlify frontend
+CORS(app, supports_credentials=True, resources={
+    r"/api/*": {
+        "origins": [
+            "https://stellular-heliotrope-8bb980.netlify.app",
+            "http://localhost:5500",
+            "http://127.0.0.1:5500",
+            "http://localhost:5000",
+            "http://127.0.0.1:5000"
+        ],
+        "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
+})
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'txt', 'zip'}
