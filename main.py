@@ -4,7 +4,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
 import os
 import uuid
-import psycopg2
+import pg8000
 from datetime import datetime
 import cloudinary
 import cloudinary.uploader
@@ -44,7 +44,7 @@ CORS(app, supports_credentials=True, resources={
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://studyhub_db_391e_user:cmmV6TF5rliapeTbezWQxI8bNMj9Ec4D@dpg-d8p9ihj6sc1c73cgvblg-a/studyhub_db_391e')
 
 def get_db():
-    conn = psycopg2.connect(DATABASE_URL)
+    conn = pg8000.dbapi.connect(DATABASE_URL)
     return conn
 
 def init_db():
