@@ -2,10 +2,20 @@ from flask import Flask, request, jsonify, session, send_from_directory
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
 from werkzeug.utils import secure_filename
-import sqlite3
 import os
 import uuid
+import psycopg2
 from datetime import datetime
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
+
+# Cloudinary config
+cloudinary.config(
+    cloud_name="dgc1s5qha",
+    api_key="574412939974831",
+    api_secret="d6HCN3DXh08jLM90GEmuBCSzGOc"
+)
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'studyhub-secret-key-change-in-production')
@@ -30,18 +40,11 @@ CORS(app, supports_credentials=True, resources={
     }
 })
 
-UPLOAD_FOLDER = 'uploads'
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'doc', 'docx', 'txt', 'zip'}
-MAX_CONTENT_LENGTH = 25 * 1024 * 1024
-
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-app.config['MAX_CONTENT_LENGTH'] = MAX_CONTENT_LENGTH
-
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+# Database URL from Render
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://studyhub_db_391e_user:cmmV6TF5rliapeTbezWQxI8bNMj9Ec4D@dpg-d8p9ihj6sc1c73cgvblg-a/studyhub_db_391e')
 
 def get_db():
-    conn = sqlite3.connect('studyhub.db')
-    conn.row_factory = sqlite3.Row
+    conn = psycopg2.connect(DATABASE_URL)
     return conn
 
 def init_db():
@@ -50,82 +53,81 @@ def init_db():
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            user_id TEXT PRIMARY KEY,
-            first_name TEXT NOT NULL,
-            last_name TEXT NOT NULL,
-            user_name TEXT UNIQUE NOT NULL,
-            email TEXT UNIQUE NOT NULL,
-            phone TEXT,
-            password TEXT NOT NULL,
-            created_at TEXT NOT NULL
+            user_id VARCHAR(255) PRIMARY KEY,
+            first_name VARCHAR(255) NOT NULL,
+            last_name VARCHAR(255) NOT NULL,
+            user_name VARCHAR(255) UNIQUE NOT NULL,
+            email VARCHAR(255) UNIQUE NOT NULL,
+            phone VARCHAR(255),
+            password VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP NOT NULL
         )
     """)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS materials (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
-            course_name TEXT NOT NULL,
-            course_code TEXT NOT NULL,
-            category TEXT NOT NULL,
+            id VARCHAR(255) PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
+            course_name VARCHAR(255) NOT NULL,
+            course_code VARCHAR(255) NOT NULL,
+            category VARCHAR(255) NOT NULL,
             description TEXT,
-            file_name TEXT NOT NULL,
-            file_type TEXT,
+            file_name VARCHAR(255) NOT NULL,
+            file_type VARCHAR(255),
             file_size INTEGER,
-            storage_path TEXT NOT NULL,
-            uploader_id TEXT NOT NULL,
-            uploader_name TEXT,
-            upload_date TEXT NOT NULL,
+            cloudinary_url VARCHAR(500) NOT NULL,
+            cloudinary_public_id VARCHAR(255),
+            uploader_id VARCHAR(255) NOT NULL,
+            uploader_name VARCHAR(255),
+            upload_date TIMESTAMP NOT NULL,
             downloads INTEGER DEFAULT 0
         )
     """)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS study_groups (
-            id TEXT PRIMARY KEY,
-            title TEXT NOT NULL,
+            id VARCHAR(255) PRIMARY KEY,
+            title VARCHAR(255) NOT NULL,
             description TEXT,
             members INTEGER DEFAULT 0,
-            created_at TEXT NOT NULL
+            created_at TIMESTAMP NOT NULL
         )
     """)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS group_memberships (
-            user_id TEXT NOT NULL,
-            group_id TEXT NOT NULL,
-            joined_at TEXT NOT NULL,
+            user_id VARCHAR(255) NOT NULL,
+            group_id VARCHAR(255) NOT NULL,
+            joined_at TIMESTAMP NOT NULL,
             PRIMARY KEY (user_id, group_id)
         )
     """)
 
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS contact_messages (
-            id TEXT PRIMARY KEY,
-            name TEXT NOT NULL,
-            email TEXT NOT NULL,
+            id VARCHAR(255) PRIMARY KEY,
+            name VARCHAR(255) NOT NULL,
+            email VARCHAR(255) NOT NULL,
             message TEXT NOT NULL,
-            sent_at TEXT NOT NULL
+            sent_at TIMESTAMP NOT NULL
         )
     """)
 
     cursor.execute("SELECT COUNT(*) FROM study_groups")
     if cursor.fetchone()[0] == 0:
         default_groups = [
-            (str(uuid.uuid4()), "CSC Study Group", "Weekly algorithm & coding challenges. All levels welcome!", 0, datetime.now().isoformat()),
-            (str(uuid.uuid4()), "ECO Study Group", "Micro & Macro economics discussions + past question solving.", 0, datetime.now().isoformat()),
-            (str(uuid.uuid4()), "Math Problem Solving", "Calculus, Algebra, Statistics help every Tuesday 7PM.", 0, datetime.now().isoformat()),
+            (str(uuid.uuid4()), "CSC Study Group", "Weekly algorithm & coding challenges. All levels welcome!", 0, datetime.now()),
+            (str(uuid.uuid4()), "ECO Study Group", "Micro & Macro economics discussions + past question solving.", 0, datetime.now()),
+            (str(uuid.uuid4()), "Math Problem Solving", "Calculus, Algebra, Statistics help every Tuesday 7PM.", 0, datetime.now()),
         ]
         cursor.executemany(
-            "INSERT INTO study_groups (id, title, description, members, created_at) VALUES (?, ?, ?, ?, ?)",
+            "INSERT INTO study_groups (id, title, description, members, created_at) VALUES (%s, %s, %s, %s, %s)",
             default_groups
         )
 
     conn.commit()
+    cursor.close()
     conn.close()
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
@@ -137,8 +139,9 @@ def signup():
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE user_name = ? OR email = ?", (data['user_name'], data['email']))
+    cursor.execute("SELECT * FROM users WHERE user_name = %s OR email = %s", (data['user_name'], data['email']))
     if cursor.fetchone():
+        cursor.close()
         conn.close()
         return jsonify({'error': 'Username or email already exists'}), 409
 
@@ -147,11 +150,12 @@ def signup():
 
     cursor.execute("""
         INSERT INTO users (user_id, first_name, last_name, user_name, email, phone, password, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """, (user_id, data['first_name'], data['last_name'], data['user_name'],
-          data['email'], data.get('phone', ''), hashed_password, datetime.now().isoformat()))
+          data['email'], data.get('phone', ''), hashed_password, datetime.now()))
 
     conn.commit()
+    cursor.close()
     conn.close()
 
     return jsonify({'message': 'Account created successfully', 'user': {'user_id': user_id, 'user_name': data['user_name'], 'email': data['email']}}), 201
@@ -167,21 +171,22 @@ def login():
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE user_name = ? OR email = ?", (identifier, identifier))
+    cursor.execute("SELECT * FROM users WHERE user_name = %s OR email = %s", (identifier, identifier))
     user = cursor.fetchone()
+    cursor.close()
     conn.close()
 
-    if not user or not check_password_hash(user['password'], password):
+    if not user or not check_password_hash(user[6], password):
         return jsonify({'error': 'Invalid credentials'}), 401
 
-    session['user_id'] = user['user_id']
-    session['user_name'] = user['user_name']
+    session['user_id'] = user[0]
+    session['user_name'] = user[3]
     session.permanent = True
 
     return jsonify({'message': 'Login successful', 'user': {
-        'user_id': user['user_id'], 'first_name': user['first_name'],
-        'last_name': user['last_name'], 'user_name': user['user_name'],
-        'email': user['email'], 'phone': user['phone']
+        'user_id': user[0], 'first_name': user[1],
+        'last_name': user[2], 'user_name': user[3],
+        'email': user[4], 'phone': user[5]
     }})
 
 @app.route('/api/logout', methods=['POST'])
@@ -196,8 +201,9 @@ def get_current_user():
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE user_id = ?", (session['user_id'],))
+    cursor.execute("SELECT * FROM users WHERE user_id = %s", (session['user_id'],))
     user = cursor.fetchone()
+    cursor.close()
     conn.close()
 
     if not user:
@@ -205,9 +211,9 @@ def get_current_user():
         return jsonify({'user': None}), 401
 
     return jsonify({'user': {
-        'user_id': user['user_id'], 'first_name': user['first_name'],
-        'last_name': user['last_name'], 'user_name': user['user_name'],
-        'email': user['email'], 'phone': user['phone']
+        'user_id': user[0], 'first_name': user[1],
+        'last_name': user[2], 'user_name': user[3],
+        'email': user[4], 'phone': user[5]
     }})
 
 @app.route('/api/materials', methods=['GET'])
@@ -216,18 +222,19 @@ def get_materials():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM materials ORDER BY upload_date DESC")
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     materials = []
     for row in rows:
         materials.append({
-            'id': row['id'], 'title': row['title'], 'courseName': row['course_name'],
-            'courseCode': row['course_code'], 'category': row['category'],
-            'description': row['description'], 'fileName': row['file_name'],
-            'fileType': row['file_type'], 'fileSize': row['file_size'],
-            'storagePath': row['storage_path'], 'downloadURL': f"/api/download/{row['storage_path']}",
-            'uploaderId': row['uploader_id'], 'uploaderName': row['uploader_name'],
-            'uploadDate': row['upload_date'], 'downloads': row['downloads']
+            'id': row[0], 'title': row[1], 'courseName': row[2],
+            'courseCode': row[3], 'category': row[4],
+            'description': row[5], 'fileName': row[6],
+            'fileType': row[7], 'fileSize': row[8],
+            'downloadURL': row[9], 'cloudinaryPublicId': row[10],
+            'uploaderId': row[11], 'uploaderName': row[12],
+            'uploadDate': row[13].isoformat() if row[13] else None, 'downloads': row[14]
         })
     return jsonify({'materials': materials})
 
@@ -242,8 +249,6 @@ def upload_material():
     file = request.files['file']
     if file.filename == '':
         return jsonify({'error': 'No file selected'}), 400
-    if not allowed_file(file.filename):
-        return jsonify({'error': 'File type not allowed'}), 400
 
     title = request.form.get('title')
     course_name = request.form.get('courseName')
@@ -254,42 +259,46 @@ def upload_material():
     if not all([title, course_name, course_code, category]):
         return jsonify({'error': 'Missing required fields'}), 400
 
-    filename = secure_filename(file.filename)
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    unique_filename = f"{timestamp}_{filename}"
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], unique_filename)
-    file.save(file_path)
+    # Upload to Cloudinary
+    try:
+        upload_result = cloudinary.uploader.upload(
+            file,
+            resource_type="auto",
+            folder="studyhub"
+        )
+        cloudinary_url = upload_result['secure_url']
+        public_id = upload_result['public_id']
+    except Exception as e:
+        return jsonify({'error': f'Cloudinary upload failed: {str(e)}'}), 500
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT first_name, last_name FROM users WHERE user_id = ?", (session['user_id'],))
+    cursor.execute("SELECT first_name, last_name FROM users WHERE user_id = %s", (session['user_id'],))
     user = cursor.fetchone()
-    uploader_name = f"{user['first_name']} {user['last_name']}" if user else "Anonymous"
+    uploader_name = f"{user[0]} {user[1]}" if user else "Anonymous"
 
     material_id = str(uuid.uuid4())
     cursor.execute("""
         INSERT INTO materials (id, title, course_name, course_code, category, description,
-            file_name, file_type, file_size, storage_path, uploader_id, uploader_name, upload_date, downloads)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            file_name, file_type, file_size, cloudinary_url, cloudinary_public_id, uploader_id, uploader_name, upload_date, downloads)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (material_id, title, course_name, course_code, category, description,
-          filename, file.content_type, os.path.getsize(file_path), unique_filename,
-          session['user_id'], uploader_name, datetime.now().isoformat(), 0))
+          file.filename, file.content_type, 0, cloudinary_url, public_id,
+          session['user_id'], uploader_name, datetime.now(), 0))
 
     conn.commit()
+    cursor.close()
     conn.close()
 
     return jsonify({'message': 'Upload successful', 'material': {'id': material_id, 'title': title}})
-
-@app.route('/api/download/<path:filename>')
-def download_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename, as_attachment=True)
 
 @app.route('/api/materials/<material_id>/download', methods=['POST'])
 def increment_download(material_id):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("UPDATE materials SET downloads = downloads + 1 WHERE id = ?", (material_id,))
+    cursor.execute("UPDATE materials SET downloads = downloads + 1 WHERE id = %s", (material_id,))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'message': 'Download counted'})
 
@@ -300,22 +309,27 @@ def delete_material(material_id):
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM materials WHERE id = ?", (material_id,))
+    cursor.execute("SELECT * FROM materials WHERE id = %s", (material_id,))
     material = cursor.fetchone()
 
     if not material:
+        cursor.close()
         conn.close()
         return jsonify({'error': 'Material not found'}), 404
-    if material['uploader_id'] != session['user_id']:
+    if material[11] != session['user_id']:
+        cursor.close()
         conn.close()
         return jsonify({'error': 'Not authorized'}), 403
 
-    file_path = os.path.join(app.config['UPLOAD_FOLDER'], material['storage_path'])
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    # Delete from Cloudinary
+    try:
+        cloudinary.uploader.destroy(material[10])
+    except:
+        pass
 
-    cursor.execute("DELETE FROM materials WHERE id = ?", (material_id,))
+    cursor.execute("DELETE FROM materials WHERE id = %s", (material_id,))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'message': 'Material deleted'})
 
@@ -329,15 +343,16 @@ def get_groups():
     user_id = session.get('user_id')
     joined_groups = set()
     if user_id:
-        cursor.execute("SELECT group_id FROM group_memberships WHERE user_id = ?", (user_id,))
-        joined_groups = {row['group_id'] for row in cursor.fetchall()}
+        cursor.execute("SELECT group_id FROM group_memberships WHERE user_id = %s", (user_id,))
+        joined_groups = {row[0] for row in cursor.fetchall()}
 
+    cursor.close()
     conn.close()
 
     groups = []
     for row in rows:
-        groups.append({'id': row['id'], 'title': row['title'], 'description': row['description'],
-                       'members': row['members'], 'joined': row['id'] in joined_groups})
+        groups.append({'id': row[0], 'title': row[1], 'description': row[2],
+                       'members': row[3], 'joined': row[0] in joined_groups})
     return jsonify({'groups': groups})
 
 @app.route('/api/groups', methods=['POST'])
@@ -353,11 +368,12 @@ def create_group():
     group_id = str(uuid.uuid4())
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO study_groups (id, title, description, members, created_at) VALUES (?, ?, ?, ?, ?)",
-                   (group_id, name, "Newly created group - be the first to join!", 1, datetime.now().isoformat()))
-    cursor.execute("INSERT INTO group_memberships (user_id, group_id, joined_at) VALUES (?, ?, ?)",
-                   (session['user_id'], group_id, datetime.now().isoformat()))
+    cursor.execute("INSERT INTO study_groups (id, title, description, members, created_at) VALUES (%s, %s, %s, %s, %s)",
+                   (group_id, name, "Newly created group - be the first to join!", 1, datetime.now()))
+    cursor.execute("INSERT INTO group_memberships (user_id, group_id, joined_at) VALUES (%s, %s, %s)",
+                   (session['user_id'], group_id, datetime.now()))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'message': 'Group created', 'group': {'id': group_id, 'title': name}})
 
@@ -368,16 +384,18 @@ def join_group(group_id):
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM group_memberships WHERE user_id = ? AND group_id = ?",
+    cursor.execute("SELECT * FROM group_memberships WHERE user_id = %s AND group_id = %s",
                    (session['user_id'], group_id))
     if cursor.fetchone():
+        cursor.close()
         conn.close()
         return jsonify({'error': 'Already joined'}), 409
 
-    cursor.execute("INSERT INTO group_memberships (user_id, group_id, joined_at) VALUES (?, ?, ?)",
-                   (session['user_id'], group_id, datetime.now().isoformat()))
-    cursor.execute("UPDATE study_groups SET members = members + 1 WHERE id = ?", (group_id,))
+    cursor.execute("INSERT INTO group_memberships (user_id, group_id, joined_at) VALUES (%s, %s, %s)",
+                   (session['user_id'], group_id, datetime.now()))
+    cursor.execute("UPDATE study_groups SET members = members + 1 WHERE id = %s", (group_id,))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'message': 'Joined group'})
 
@@ -388,11 +406,12 @@ def leave_group(group_id):
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("DELETE FROM group_memberships WHERE user_id = ? AND group_id = ?",
+    cursor.execute("DELETE FROM group_memberships WHERE user_id = %s AND group_id = %s",
                    (session['user_id'], group_id))
     if cursor.rowcount > 0:
-        cursor.execute("UPDATE study_groups SET members = members - 1 WHERE id = ?", (group_id,))
+        cursor.execute("UPDATE study_groups SET members = members - 1 WHERE id = %s", (group_id,))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'message': 'Left group'})
 
@@ -408,9 +427,10 @@ def contact():
 
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("INSERT INTO contact_messages (id, name, email, message, sent_at) VALUES (?, ?, ?, ?, ?)",
-                   (str(uuid.uuid4()), name, email, message, datetime.now().isoformat()))
+    cursor.execute("INSERT INTO contact_messages (id, name, email, message, sent_at) VALUES (%s, %s, %s, %s, %s)",
+                   (str(uuid.uuid4()), name, email, message, datetime.now()))
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({'message': 'Message sent successfully'})
 
@@ -420,12 +440,13 @@ def get_contact_messages():
     cursor = conn.cursor()
     cursor.execute("SELECT * FROM contact_messages ORDER BY sent_at DESC")
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     messages = []
     for row in rows:
-        messages.append({'id': row['id'], 'name': row['name'], 'email': row['email'],
-                         'message': row['message'], 'sent_at': row['sent_at']})
+        messages.append({'id': row[0], 'name': row[1], 'email': row[2],
+                         'message': row[3], 'sent_at': row[4].isoformat() if row[4] else None})
     return jsonify({'messages': messages})
 
 @app.route('/api/export/users', methods=['GET'])
@@ -434,35 +455,38 @@ def export_users_json():
     cursor = conn.cursor()
     cursor.execute("SELECT user_id, first_name, last_name, user_name, email, phone, created_at FROM users")
     rows = cursor.fetchall()
+    cursor.close()
     conn.close()
 
     users = []
     for row in rows:
-        users.append({'user_id': row['user_id'], 'first_name': row['first_name'],
-                      'last_name': row['last_name'], 'user_name': row['user_name'],
-                      'email': row['email'], 'phone': row['phone'], 'created_at': row['created_at']})
+        users.append({'user_id': row[0], 'first_name': row[1],
+                      'last_name': row[2], 'user_name': row[3],
+                      'email': row[4], 'phone': row[5], 'created_at': row[6].isoformat() if row[6] else None})
     return jsonify({'users': users})
 
 @app.route('/api/export/user/<user_id>', methods=['GET'])
 def export_user_json(user_id):
     conn = get_db()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM users WHERE user_id = ?", (user_id,))
+    cursor.execute("SELECT * FROM users WHERE user_id = %s", (user_id,))
     user = cursor.fetchone()
 
     if not user:
+        cursor.close()
         conn.close()
         return jsonify({'error': 'User not found'}), 404
 
-    cursor.execute("SELECT id FROM materials WHERE uploader_id = ?", (user_id,))
-    materials = [row['id'] for row in cursor.fetchall()]
+    cursor.execute("SELECT id FROM materials WHERE uploader_id = %s", (user_id,))
+    materials = [row[0] for row in cursor.fetchall()]
+    cursor.close()
     conn.close()
 
     return jsonify({
-        'user_id': user['user_id'], 'first_name': user['first_name'],
-        'last_name': user['last_name'], 'user_name': user['user_name'],
-        'email': user['email'], 'phone': user['phone'],
-        'created_at': user['created_at'], 'materials_id': materials
+        'user_id': user[0], 'first_name': user[1],
+        'last_name': user[2], 'user_name': user[3],
+        'email': user[4], 'phone': user[5],
+        'created_at': user[6].isoformat() if user[6] else None, 'materials_id': materials
     })
 
 if __name__ == '__main__':
