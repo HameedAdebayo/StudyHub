@@ -44,7 +44,15 @@ CORS(app, supports_credentials=True, resources={
 DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://studyhub_db_391e_user:cmmV6TF5rliapeTbezWQxI8bNMj9Ec4D@dpg-d8p9ihj6sc1c73cgvblg-a/studyhub_db_391e')
 
 def get_db():
-    conn = pg8000.dbapi.connect(DATABASE_URL)
+    import urllib.parse
+    parsed = urllib.parse.urlparse(DATABASE_URL)
+    conn = pg8000.dbapi.connect(
+        user=parsed.username,
+        password=parsed.password,
+        host=parsed.hostname,
+        port=parsed.port or 5432,
+        database=parsed.path[1:]  # Remove leading slash
+    )
     return conn
 
 def init_db():
