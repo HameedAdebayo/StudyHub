@@ -1,6 +1,6 @@
 // StudyHub Flask Backend Integration
 // API base URL - uses same hostname as frontend to avoid CORS cookie issues
-const API_BASE = `http://${window.location.hostname}:5000/api`;
+const API_BASE = 'https://studyhub-2-jjfo.onrender.com/api';
 
 // Global state
 let materials = [];
