@@ -41,7 +41,7 @@ CORS(app, supports_credentials=True, resources={
 })
 
 # Database URL from Render
-DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://studyhub_db_391e_user:cmmV6TF5rliapeTbezWQxI8bNMj9Ec4D@dpg-d8p9ihj6sc1c73cgvblg-a/studyhub_db_391e')
+DATABASE_URL = os.environ.get('DATABASE_URL', 'postgresql://neondb_owner:npg_BgtHS9pTQiZ1@ep-polished-cloud-ax36yfg4.c-4.us-east-2.aws.neon.tech/neondb?sslmode=require')
 
 def get_db():
     import urllib.parse
