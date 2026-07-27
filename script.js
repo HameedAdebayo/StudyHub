@@ -1,6 +1,6 @@
 // StudyHub Flask Backend Integration
 // API base URL - uses same hostname as frontend to avoid CORS cookie issues
-const API_BASE = 'https://studyhub-2-jjfo.onrender.com/api';
+const API_BASE = `http://${window.location.hostname}:5000/api`;
 
 // Global state
 let materials = [];
@@ -341,9 +341,26 @@ async function downloadMaterial(id) {
 		material.downloads = (material.downloads || 0) + 1;
 		filterMaterials();
 
-		// Cloudinary URL is already a full URL - just open it
-		console.log("Downloading from:", material.downloadURL);
-		window.open(material.downloadURL, "_blank");
+		// Ensure we use the full URL - Cloudinary URLs are already complete
+		let downloadUrl = material.downloadURL;
+
+		// If for some reason it's not a full URL, log it for debugging
+		if (!downloadUrl.startsWith("http")) {
+			console.error("Invalid download URL:", downloadUrl);
+			showToast("Download link is invalid");
+			return;
+		}
+
+		console.log("Downloading from:", downloadUrl);
+
+		// Create a temporary link and click it for better download behavior
+		const a = document.createElement("a");
+		a.href = downloadUrl;
+		a.download = material.fileName || "download";
+		a.target = "_blank";
+		document.body.appendChild(a);
+		a.click();
+		document.body.removeChild(a);
 
 		showToast(`Downloading ${material.fileName}...`);
 	} catch (error) {
@@ -355,7 +372,11 @@ async function downloadMaterial(id) {
 function previewMaterial(id) {
 	const material = materials.find((m) => m.id === id);
 	if (material && material.downloadURL) {
-		window.open(material.downloadURL, "_blank");
+		let url = material.downloadURL;
+		if (!url.startsWith("http")) {
+			url = API_BASE.replace("/api", "") + url;
+		}
+		window.open(url, "_blank");
 	}
 }
 

@@ -1,3 +1,5 @@
+
+
 /* style.css - Custom styles beyond Tailwind */
 @tailwind base;
 @tailwind components;
@@ -59,4 +61,24 @@ body {
 /* File input label style */
 input[type="file"] {
 	display: none;
+}
+
+
+/* Toast visibility fixes */
+#toast {
+    z-index: 9999 !important;
+    min-width: 300px;
+}
+
+#toast:not(.hidden) {
+    display: flex !important;
+}
+
+/* Error toast styling */
+.toast-error {
+    background-color: #EF4444 !important;
+}
+
+.toast-error i {
+    color: white !important;
 }
