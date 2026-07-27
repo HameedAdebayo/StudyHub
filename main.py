@@ -497,6 +497,12 @@ def export_user_json(user_id):
         'created_at': user[6].isoformat() if user[6] else None, 'materials_id': materials
     })
 
-if __name__ == '__main__':
+# Auto-create tables on startup (for Render free tier)
+try:
     init_db()
+    print("Database tables created/verified")
+except Exception as e:
+    print(f"Database init warning: {e}")
+
+if __name__ == '__main__':
     app.run(debug=True, port=5000)
