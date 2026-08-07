@@ -341,26 +341,12 @@ async function downloadMaterial(id) {
 		material.downloads = (material.downloads || 0) + 1;
 		filterMaterials();
 
-		// Ensure we use the full URL - Cloudinary URLs are already complete
-		let downloadUrl = material.downloadURL;
-
-		// If for some reason it's not a full URL, log it for debugging
-		if (!downloadUrl.startsWith("http")) {
-			console.error("Invalid download URL:", downloadUrl);
-			showToast("Download link is invalid");
-			return;
-		}
-
+		// Use the Cloudinary URL directly - it's already a complete URL
+		const downloadUrl = material.downloadURL;
 		console.log("Downloading from:", downloadUrl);
 
-		// Create a temporary link and click it for better download behavior
-		const a = document.createElement("a");
-		a.href = downloadUrl;
-		a.download = material.fileName || "download";
-		a.target = "_blank";
-		document.body.appendChild(a);
-		a.click();
-		document.body.removeChild(a);
+		// Open in new tab for download
+		window.open(downloadUrl, "_blank");
 
 		showToast(`Downloading ${material.fileName}...`);
 	} catch (error) {
